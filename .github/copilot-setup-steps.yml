@@ -1,5 +1,7 @@
 steps:
-  - name: Install dependencies
+  - name: Install frontend dependencies
     run: npm install
+    working-directory: threadhive-frontend
   - name: Build check
     run: npm run build
+    working-directory: threadhive-frontend
