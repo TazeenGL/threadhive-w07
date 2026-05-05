@@ -1,0 +1,5 @@
+steps:
+  - name: Install dependencies
+    run: npm install
+  - name: Build check
+    run: npm run build
