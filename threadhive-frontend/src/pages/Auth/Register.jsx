@@ -1,14 +1,24 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { Container, Card, Form, Button, Spinner } from "react-bootstrap";
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { register } from '../../services/authService';
+import { useDispatch, useSelector } from 'react-redux';
+import { registerUser, clearAuthState } from '../../reducers/authSlice';
 import './Auth.css';
 
 function Register() {
   const [form, setForm] = useState({ name: '', email: '', password: '' });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { loading, error, success } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    if (success) {
+      dispatch(clearAuthState());
+      alert('Registration successful!');
+      navigate('/login');
+    }
+  }, [success, dispatch, navigate]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -16,21 +26,10 @@ function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
-    
-    try {
-      await register(form);
-      alert('Registration successful!');
-      navigate('/login');
-    } catch (err) {
-      console.error('Registration error:', err);
-      const errorMessage = err.response?.data?.error || err.response?.data?.message || err.message || 'Registration failed. Please try again.';
-      setError(errorMessage);
-    } finally {
-      setLoading(false);
-    }
+    dispatch(registerUser(form));
   };
+
+  const errorMessage = error?.error || error?.message || (typeof error === 'string' ? error : null);
 
   return (
     <Container
@@ -81,7 +80,7 @@ function Register() {
             <label htmlFor="floatingPassword" className="auth-form-label">Password</label>
           </Form.Floating>
 
-          {error && <div className="auth-error">{error}</div>}
+          {errorMessage && <div className="auth-error">{errorMessage}</div>}
 
           <Button
             type="submit"
