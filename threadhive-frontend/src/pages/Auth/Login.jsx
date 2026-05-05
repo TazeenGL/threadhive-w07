@@ -1,18 +1,17 @@
 import { Container, Card, Form, Button, Spinner } from "react-bootstrap";
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { login } from "../../services/authService";
-import { useAuth } from "../../context/AuthContext";
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser, clearAuthState } from "../../reducers/authSlice";
 import "./Auth.css";
 
 function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [info, setInfo] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
-  const { loginUser } = useAuth();
+  const dispatch = useDispatch();
+  const { loading, error, success } = useSelector((state) => state.auth);
 
   useEffect(() => {
     // Check if user was redirected due to expired token
@@ -21,34 +20,24 @@ function Login() {
     }
   }, [location]);
 
+  useEffect(() => {
+    if (success) {
+      dispatch(clearAuthState());
+      alert("Login successful!");
+      navigate("/");
+    }
+  }, [success, dispatch, navigate]);
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
-
-    try {
-      const data = await login(form);
-
-      loginUser(data);
-
-      // Navigate to home
-      alert("Login successful!");
-      navigate("/");
-    } catch (err) {
-      const errorMessage =
-        err.response?.data?.error ||
-        err.response?.data?.message ||
-        err.message ||
-        "Login failed. Please try again.";
-      setError(errorMessage);
-    } finally {
-      setLoading(false);
-    }
+    dispatch(loginUser(form));
   };
+
+  const errorMessage = error?.error || error?.message || (typeof error === 'string' ? error : null);
 
   return (
     <Container
@@ -92,7 +81,7 @@ function Login() {
           </Form.Floating>
 
           {info && <div className="auth-info">{info}</div>}
-          {error && <div className="auth-error">{error}</div>}
+          {errorMessage && <div className="auth-error">{errorMessage}</div>}
 
           <Button
             type="submit"

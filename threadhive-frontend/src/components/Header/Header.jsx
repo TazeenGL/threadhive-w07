@@ -1,12 +1,14 @@
 import { Navbar, Container, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "../../reducers/authSlice";
 import { useTheme } from "../../context/ThemeContext";
 import "./Header.css";
 
 function Header() {
   const navigate = useNavigate();
-  const { token, user, logout } = useAuth();
+  const dispatch = useDispatch();
+  const { token, user } = useSelector((state) => state.auth);
   const { darkMode, toggleDarkMode } = useTheme();
 
   const handleLogin = () => {
@@ -18,7 +20,7 @@ function Header() {
   };
 
   const handleLogout = () => {
-    logout();
+    dispatch(logout());
     navigate("/login");
   };
 

@@ -1,24 +1,17 @@
-import { fetchAPI } from "../api/apiClient";
+import axiosInstance from "../api/axiosInstance";
 import { SUBREDDIT_API } from '../config/apiConfig';
 
 export const fetchSubreddits = async () => {
-  const res = await fetchAPI(SUBREDDIT_API.GET_ALL, {
-    method: 'GET',
-  });
-  return res.data;
+  const res = await axiosInstance.get(SUBREDDIT_API.GET_ALL);
+  return res.data.data;
 };
 
 export const createSubreddit = async ({ name, description = '' }) => {
-  const res = await fetchAPI(SUBREDDIT_API.CREATE, {
-    method: 'POST',
-    body: JSON.stringify({ name, description }),
-  });
-  return res.data;
+  const res = await axiosInstance.post(SUBREDDIT_API.CREATE, { name, description });
+  return res.data.data;
 };
 
 export const fetchSubredditWithThreads = async (subredditId) => {
-  const res = await fetchAPI(SUBREDDIT_API.GET_BY_ID(subredditId), {
-    method: 'GET',
-  });
-  return res.data;
+  const res = await axiosInstance.get(SUBREDDIT_API.GET_BY_ID(subredditId));
+  return res.data.data;
 };

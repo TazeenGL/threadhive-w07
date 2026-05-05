@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Row, Col, Form } from "react-bootstrap";
-import { useAuth } from "../../context/AuthContext";
+import { useSelector, useDispatch } from "react-redux";
+import { setUser } from "../../reducers/authSlice";
 import "./Profile.css";
 
 function Profile() {
   const navigate = useNavigate();
-  const { user, updateUser } = useAuth();
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
 
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({
@@ -17,7 +19,7 @@ function Profile() {
     website: user?.website || "",
   });
 
-  // Sync form when user changes in context (e.g. after save)
+  // Sync form when user changes in store (e.g. after save)
   useEffect(() => {
     setForm({
       name: user?.name || "",
@@ -34,7 +36,7 @@ function Profile() {
   };
 
   const handleSave = () => {
-    updateUser({ ...user, ...form });
+    dispatch(setUser({ ...user, ...form }));
     setEditing(false);
   };
 
